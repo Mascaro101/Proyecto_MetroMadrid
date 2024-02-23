@@ -1,6 +1,6 @@
 import pandas as pd
 # el directorio donde se guarda el archivo que contiene los datos
-data_address = "C:/Users/masca/Desktop/ComputerStructure/Metro/Simple/etiquetas_grafos_metro_PRO.csv"
+data_address = "/workspaces/Proyecto_MetroMadrid/etiquetas_grafos_metro_PRO.csv"
 data = pd.read_csv(data_address)
 
 # Diccionario de vertices y aristas
