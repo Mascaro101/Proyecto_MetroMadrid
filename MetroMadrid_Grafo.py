@@ -1,11 +1,15 @@
 import pandas as pd
 # el directorio donde se guarda el archivo que contiene los datos
-data_address = "/workspaces/Proyecto_MetroMadrid/etiquetas_grafos_metro_PRO.csv"
+data_address = "C:/Users/masca/Desktop/ComputerStructure/Metro/Simple/etiquetas_grafos_metro_PRO.csv"
 data = pd.read_csv(data_address)
 
 # Diccionario de vertices y aristas
 vertices = {}
 aristas = {}
+
+# La distancia entre origen y destino, utilizada como funcion heuristica en la busqueda de caminos
+def distancia_euclidiana(origen_x, origen_y, destino_x, destino_y):
+    return ((destino_x - origen_x)**2 + (destino_y - origen_y)**2)**(1/2)
 
 # Funcion que crea los vertices del grafo con nombre de la estacion
 # Los atributos son las cordenadas de la estacion y sus vecinos
@@ -17,7 +21,6 @@ def crear_vertice(nombre, vecinos, coordenadas_origen):
     else:
         for vecino in vecinos:
             vertices[nombre]["vecinos"].append(vecino)
-
 # Funcion que crea las aristas del grafo
 # Tiene como atributos los nombres del origen y destino asi como sus coordenadas respectivas
 def crear_arista(origen_nombre, destino_nombre, coordenadas_origen, coordenadas_destino):
@@ -43,10 +46,6 @@ def buscar_vertice(nombre):
 # Funcion que calcula el tamaño del grafo teniendo en cuenta el numero de nodos
 def calcular_size():
     return len(vertices)
-
-# La distancia entre origen y destino, utilizada como funcion heuristica en la busqueda de caminos
-def distancia_euclidiana(origen_x, origen_y, destino_x, destino_y):
-    return ((destino_x - origen_x)**2 + (destino_y - origen_y)**2)**(1/2)
 
 # Funcion f del algoritmo A*
 def f(vecino, h):
@@ -117,6 +116,7 @@ def construir_ruta(anterior_nodo, origen, destino):
     return ruta
     
 def main():
+    # bucle que guarda la informacion del archivo de datos
     for estacion in data.id:
         # se guardan el nombre, linea y coordenadas de cada estacion
         nombre = data.nombre[estacion]
@@ -135,8 +135,12 @@ def main():
         
         # se crea el vertice en el nodo con el nombre, vecinos y coordenadas 
         crear_vertice(nombre, vecinos, coordenadas_origen)
-
-    print(buscar_camino("COLONIA JARDIN", "NUEVOS MINISTERIOS"))
+    
+    while True:
+        input_estacion_origen = input("Estación de Origen: ")
+        input_estacion_destino = input("Estación de Destino: ")
+        
+        print(buscar_camino(input_estacion_origen, input_estacion_destino), "\n")
     
 if __name__ == "__main__":
     main()
