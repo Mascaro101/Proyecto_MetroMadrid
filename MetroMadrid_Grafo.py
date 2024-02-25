@@ -1,6 +1,6 @@
 import pandas as pd
 # el directorio donde se guarda el archivo que contiene los datos
-data_address = "/workspaces/Proyecto_MetroMadrid/etiquetas_grafos_metro_PRO.csv"
+data_address = "C:/Users/masca/Desktop/ComputerStructure/Metro/Simple/etiquetas_grafos_metro_PRO.csv"
 data = pd.read_csv(data_address)
 
 # Diccionario de vertices y aristas
@@ -117,6 +117,7 @@ def construir_ruta(anterior_nodo, origen, destino):
     return ruta
     
 def main():
+    # bucle que guarda la informacion del archivo de datos
     for estacion in data.id:
         # se guardan el nombre, linea y coordenadas de cada estacion
         nombre = data.nombre[estacion]
@@ -135,8 +136,12 @@ def main():
         
         # se crea el vertice en el nodo con el nombre, vecinos y coordenadas 
         crear_vertice(nombre, vecinos, coordenadas_origen)
-
-    print(buscar_camino("COLONIA JARDIN", "NUEVOS MINISTERIOS"))
+    
+    while True:
+        input_estacion_origen = input("Estación de Origen: ")
+        input_estacion_destino = input("Estación de Destino: ")
+        
+        print(buscar_camino(input_estacion_origen, input_estacion_destino), "\n")
     
 if __name__ == "__main__":
     main()
