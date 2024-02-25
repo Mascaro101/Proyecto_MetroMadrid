@@ -150,14 +150,22 @@ def buscar_camino(origen_nombre, destino_nombre):
 # Funcion que retrocede el camino y construye la ruta más corta
 def construir_ruta(anterior_nodo, origen, destino):
     ruta = [destino]
+    ruta_distancia = 0
     
     # Empezando desde el destino se retrocede añadiendo los nodos a la lista de ruta y luego se le da la vuelta
     while destino != origen:
+        # estacion final es la ultima estacion en la pila, se iguala a la anterior
+        estacion_final = destino
         destino = anterior_nodo[destino]
+        estacion_anterior = destino
+        
+        # estacion final y la anterior se usan para buscar la arista entre ellos y asi sumar su distancia a la distancia de la ruta
+        ruta_distancia += aristas[(estacion_final, estacion_anterior)]["distancia"]
+        
         ruta.append(destino)
     ruta.reverse()
     
-    return ruta
+    return ruta, ruta_distancia
     
 def main():
     # bucle que guarda la informacion del archivo de datos
