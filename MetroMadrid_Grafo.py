@@ -7,6 +7,10 @@ data = pd.read_csv(data_address)
 vertices = {}
 aristas = {}
 
+# La distancia entre origen y destino, utilizada como funcion heuristica en la busqueda de caminos
+def distancia_euclidiana(origen_x, origen_y, destino_x, destino_y):
+    return ((destino_x - origen_x)**2 + (destino_y - origen_y)**2)**(1/2)
+
 # Funcion que crea los vertices del grafo con nombre de la estacion
 # Los atributos son las cordenadas de la estacion y sus vecinos
 def crear_vertice(nombre, vecinos, coordenadas_origen):
@@ -17,7 +21,6 @@ def crear_vertice(nombre, vecinos, coordenadas_origen):
     else:
         for vecino in vecinos:
             vertices[nombre]["vecinos"].append(vecino)
-
 # Funcion que crea las aristas del grafo
 # Tiene como atributos los nombres del origen y destino asi como sus coordenadas respectivas
 def crear_arista(origen_nombre, destino_nombre, coordenadas_origen, coordenadas_destino):
@@ -43,10 +46,6 @@ def buscar_vertice(nombre):
 # Funcion que calcula el tamaño del grafo teniendo en cuenta el numero de nodos
 def calcular_size():
     return len(vertices)
-
-# La distancia entre origen y destino, utilizada como funcion heuristica en la busqueda de caminos
-def distancia_euclidiana(origen_x, origen_y, destino_x, destino_y):
-    return ((destino_x - origen_x)**2 + (destino_y - origen_y)**2)**(1/2)
 
 # Funcion f del algoritmo A*
 def f(vecino, h):
