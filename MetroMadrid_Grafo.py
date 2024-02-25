@@ -12,7 +12,7 @@ def distancia_euclidiana(origen_x, origen_y, destino_x, destino_y):
     return ((destino_x - origen_x)**2 + (destino_y - origen_y)**2)**(1/2)
 
 # Funcion que crea los vertices del grafo con nombre de la estacion
-# Los atributos son las cordenadas de la estacion y sus vecinos
+# Los atributos son las cordenadas de la estacion y sus vecinosº
 def crear_vertice(nombre, vecinos, coordenadas_origen):
     x = coordenadas_origen[0]
     y = coordenadas_origen[1]
@@ -39,10 +39,19 @@ def eliminar_vertice(vertice):
     if vertice in vertices: 
         del vertices[vertice]
 
-# Funcion que busca un vertice
-def buscar_vertice(nombre):
-    return vertices.get(nombre, None)
-
+# Funcion que busca un vertice basandose en uno de sus atributos 
+def buscar_vertice(nombre, vecinos, coordenadas):
+    if nombre:
+        return nombre, vertices.get(nombre, None)
+    if vecinos:
+        for vertice in vertices:
+            if vertices[vertice]["vecinos"] == vecinos:
+                return vertice, vertices[vertice]
+    if coordenadas:
+        for vertice in vertices:
+            if vertices[vertice]["x"] == coordenadas[0] and vertices[vertice]["y"] == coordenadas[1]:
+                return vertice, vertices[vertice]
+    
 # Funcion que calcula el tamaño del grafo teniendo en cuenta el numero de nodos
 def calcular_size():
     return len(vertices)
@@ -53,7 +62,7 @@ def f(vecino, h):
 
 # Funcion que busca el camino más corto entre dos estaciones utilizando el algoritmo de busqueda A*
 def buscar_camino(origen_nombre, destino_nombre):
-    origen = vertices[origen_nombre]
+    origen = vertices[origen_nombre]        
     destino = vertices[destino_nombre]
     
     print("ORIGEN: ", origen)
@@ -90,14 +99,14 @@ def buscar_camino(origen_nombre, destino_nombre):
             if vecino in closed_set:
                 continue 
             
-            # la suma del coste desde el origen hasta ese nodo más el coste ha sus vecinos
-            potential_g_score = g_values[current_node] + distancia_euclidiana(vertices[current_node]["x"], vertices[current_node]["y"], vertices[vecino]["x"], vertices[vecino]["y"])
+            # el valor potencial de g(vecino ), la suma entre el valor g(n) + la distancia euclidiana hasta el vecino
+            g_potencial = g_values[current_node] + aristas[(current_node, vecino)]["distancia"]
             
             # Si el vecino no esta en la pila añadir para ser explorado y añadir su coste desde el origen
             # Si el vecino si esta en open_set pero el camino encontrado es menor que el que ya esta guardado, actualizar g_values
-            if vecino not in open_set or potential_g_score < g_values[vecino]:
-                open_set[vecino] = potential_g_score
-                g_values[vecino] = potential_g_score
+            if vecino not in open_set or g_potencial < g_values[vecino]:
+                open_set[vecino] = g_potencial
+                g_values[vecino] = g_potencial
                 anterior_nodo[vecino] = current_node
                 
     # se construye la ruta y se devuelve
@@ -123,24 +132,33 @@ def main():
         linea = data.linea[estacion]
         coordenadas_origen = (data.x[estacion], data.y[estacion])
         
-        # si en el archivo dos estaciones aparecen consecutivamente y pertenecen a la misma linea se guardan en el vertice como vecinos
+        # si en el archivo, dos estaciones aparecen consecutivamente y pertenecen a la misma linea se guardan en el vertice como vecinos
         vecinos =  []
-        if data.id[estacion]+1 < len(data.id) and data.id[estacion]-1 > 0 and data.linea[estacion] == data.linea[estacion+1]:
-            vecinos.append(data.nombre[estacion+1])
-            vecinos.append(data.nombre[estacion-1])
+        if data.id[estacion]+1 < len(data.id) and data.id[estacion]-1 > 0:
             
-            # Con las coordenadas del vecino anterior se crea una arista entre el vecino anterior y la estacion
-            coordenadas_vecino_anterior = (data.x[estacion-1], data.y[estacion-1])
-            crear_arista(nombre, data.nombre[estacion-1], coordenadas_origen, coordenadas_vecino_anterior)
+            # Se verifica si la estacion anterior en el csv pertenece a la misma linea y por lo tanto son vecinos
+            if data.linea[estacion] == data.linea[estacion-1]:
+                # Con las coordenadas del vecino anterior se crea una arista entre el vecino anterior y la estacion
+                coordenadas_vecino_anterior = (data.x[estacion-1], data.y[estacion-1])
+                crear_arista(nombre, data.nombre[estacion-1], coordenadas_origen, coordenadas_vecino_anterior)
+                vecinos.append(data.nombre[estacion-1])
+            # Se verifica si la estacion siguiente en el csv pertenece a la misma linea y por lo tanto son vecinos
+            if data.linea[estacion] == data.linea[estacion+1]:
+                # Con las coordenadas del vecino anterior se crea una arista entre el vecino siguiente y la estacion
+                coordenadas_vecino_siguiente = (data.x[estacion+1], data.y[estacion+1])
+                crear_arista(nombre, data.nombre[estacion+1], coordenadas_origen, coordenadas_vecino_anterior)
+                vecinos.append(data.nombre[estacion+1])
         
         # se crea el vertice en el nodo con el nombre, vecinos y coordenadas 
         crear_vertice(nombre, vecinos, coordenadas_origen)
-    
-    while True:
-        input_estacion_origen = input("Estación de Origen: ")
-        input_estacion_destino = input("Estación de Destino: ")
         
-        print(buscar_camino(input_estacion_origen, input_estacion_destino), "\n")
+    print(buscar_camino("LAGO", "GRAN VIA"))
+    # Buscar Vertice Basado en el atributo Nombre
+    # print(buscar_vertice("COLONIA JARDIN", None, None))
+    # Buscar Vertice Basado en el atributo Vecinos
+    # print(buscar_vertice(None, ['CASA DE CAMPO', 'AVIACION ESPAÑOLA'], None))
+    # Buscar Vertice Basado en el atributo Coordenadas
+    # print(buscar_vertice(None, None, [434373, 4472315]))
     
 if __name__ == "__main__":
     main()
