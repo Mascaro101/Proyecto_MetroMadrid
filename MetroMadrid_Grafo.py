@@ -142,12 +142,52 @@ def buscar_camino(origen_nombre, destino_nombre):
                 open_set[vecino] = g_potencial
                 g_values[vecino] = g_potencial
                 anterior_nodo[vecino] = current_node
-                
-    # se construye la ruta y se devuelve
-    return construir_ruta(anterior_nodo, origen_nombre, destino_nombre)
+    
+    ruta = [destino_nombre]
+    ruta_distancias = []
 
+    return construir_ruta_recursive(anterior_nodo, origen_nombre, destino_nombre, ruta_distancias, ruta)
 
-# Funcion que retrocede el camino y construye la ruta más corta
+# Funcion que retrocede el camino y construye la ruta más corta RECURSIVA
+def construir_ruta_recursive(anterior_nodo, origen, destino, ruta_distancias, ruta):
+    estacion_anterior = anterior_nodo[destino]    
+    if estacion_anterior != origen:
+        ruta.append(estacion_anterior)
+        ruta_distancias.append(aristas[destino, estacion_anterior]["distancia"])
+        
+        
+        construir_ruta_recursive(anterior_nodo, origen, estacion_anterior, ruta_distancias, ruta)
+    else:
+        ruta.append(origen)
+        ruta_distancias.append(aristas[destino, estacion_anterior]["distancia"])
+
+    
+    ruta_distancias_suma = sum(ruta_distancias)
+    ruta_revesed = list(reversed(ruta))
+    
+    return ruta_revesed, ruta_distancias_suma
+
+# Funcion que retrocede el camino y construye la ruta más corta NO RECURSIVA
+def construir_ruta(anterior_nodo, origen, destino):
+    ruta = [destino]
+    ruta_distancia = 0
+    
+    # Empezando desde el destino se retrocede añadiendo los nodos a la lista de ruta y luego se le da la vuelta
+    while destino != origen:
+        # estacion final es la ultima estacion en la pila, se iguala a la anterior
+        estacion_final = destino
+        destino = anterior_nodo[destino]
+        estacion_anterior = destino
+        
+        # estacion final y la anterior se usan para buscar la arista entre ellos y asi sumar su distancia a la distancia de la ruta
+        ruta_distancia += aristas[(estacion_final, estacion_anterior)]["distancia"]
+        
+        ruta.append(destino)
+    ruta.reverse()
+    
+    return ruta, ruta_distancia
+
+# Funcion que retrocede el camino y construye la ruta más corta NO RECURSIVA
 def construir_ruta(anterior_nodo, origen, destino):
     ruta = [destino]
     ruta_distancia = 0
