@@ -1,6 +1,6 @@
 import pandas as pd
 # el directorio donde se guarda el archivo que contiene los datos
-data_address = "C:/Users/masca/Desktop/ComputerStructure/Metro/Simple/etiquetas_grafos_metro_PRO.csv"
+data_address = "etiquetas_grafos_metro_PRO.csv"
 data = pd.read_csv(data_address)
 
 # Diccionario de vertices y aristas
@@ -36,6 +36,36 @@ def crear_arista(origen_nombre, destino_nombre, coordenadas_origen, coordenadas_
 
 # Funcion que elimina un vertice
 def eliminar_vertice(vertice):
+    for key, value in vertices[vertice].items():
+        if key == "vecinos":
+            estacion_anterior = value[0]
+            #print(estacion_anterior)
+            estacion_siguiente = value[1]
+            #print(estacion_siguiente)
+            estaciones_vecinos = value
+            #print(estaciones_vecinos)
+    
+    # Elimino las aristas que tienen el vértice como origen
+    for arista, info in aristas.copy().items():
+        if arista[0] == vertice or arista[1] == vertice:
+            del aristas[arista]
+    
+    # Elimino de los vecinos la estación eliminada
+    for estacion in estaciones_vecinos:
+        for x, y in vertices[estacion].items():
+            if x == "vecinos":
+                y.remove(vertice)
+    
+    # Añado los nuevos vecinos
+    for k, v in vertices[vertice].items():
+        if k == "vecinos":
+            for i in range(len(v)-1):
+                estacion_anterior = v[i]
+                estacion_siguiente = v[i+1]
+                vertices[estacion_anterior]["vecinos"].append(estacion_siguiente)
+                vertices[estacion_siguiente]["vecinos"].append(estacion_anterior)
+                
+    #Elimino la estación deseada
     if vertice in vertices: 
         del vertices[vertice]
 
@@ -60,7 +90,7 @@ def calcular_size():
 def f(vecino, h):
     return vecino + h
 
-# Funcion que busca el camino más corto entre dos estaciones utilizando el algoritmo de busqueda A*
+# # Funcion que busca el camino más corto entre dos estaciones utilizando el algoritmo de busqueda A*
 def buscar_camino(origen_nombre, destino_nombre):
     origen = vertices[origen_nombre]        
     destino = vertices[destino_nombre]
@@ -75,12 +105,12 @@ def buscar_camino(origen_nombre, destino_nombre):
     # g_values contiene todos los nodos junto con el coste desde el origen
     g_values = {origen_nombre: 0}
     
-    #anterior_nodo contiene todos los nodos explorados para despues retroceder y crear la ruta
+    # anterior_nodo contiene todos los nodos explorados para después retroceder y crear la ruta
     anterior_nodo = {}
     
     while open_set:
         
-        # utilizando una funcion anonima para extraer de open_set el nodo con la menor coste hasta el destino
+        # utilizando una función anónima para extraer de open_set el nodo con la menor coste hasta el destino
         current_node = min(open_set, key=lambda n: f(g_values[n], distancia_euclidiana(vertices[n]["x"], vertices[n]["y"], destino["x"], destino["y"])))
         
         # finalizar el bucle
@@ -95,15 +125,19 @@ def buscar_camino(origen_nombre, destino_nombre):
         
         for vecino in vertices[current_node]["vecinos"]:
             
-            # si el vecino ya se ha explorado pasar al proximo vecino
+            # si el vecino ya se ha explorado pasar al próximo vecino
             if vecino in closed_set:
                 continue 
+            
+            # asegurémonos de que la arista exista antes de intentar acceder a ella
+            if (current_node, vecino) not in aristas:
+                continue
             
             # el valor potencial de g(vecino ), la suma entre el valor g(n) + la distancia euclidiana hasta el vecino
             g_potencial = g_values[current_node] + aristas[(current_node, vecino)]["distancia"]
             
-            # Si el vecino no esta en la pila añadir para ser explorado y añadir su coste desde el origen
-            # Si el vecino si esta en open_set pero el camino encontrado es menor que el que ya esta guardado, actualizar g_values
+            # Si el vecino no está en la pila añadir para ser explorado y añadir su coste desde el origen
+            # Si el vecino sí está en open_set pero el camino encontrado es menor que el que ya está guardado, actualizar g_values
             if vecino not in open_set or g_potencial < g_values[vecino]:
                 open_set[vecino] = g_potencial
                 g_values[vecino] = g_potencial
@@ -111,6 +145,7 @@ def buscar_camino(origen_nombre, destino_nombre):
                 
     # se construye la ruta y se devuelve
     return construir_ruta(anterior_nodo, origen_nombre, destino_nombre)
+
 
 # Funcion que retrocede el camino y construye la ruta más corta
 def construir_ruta(anterior_nodo, origen, destino):
@@ -151,7 +186,8 @@ def main():
         
         # se crea el vertice en el nodo con el nombre, vecinos y coordenadas 
         crear_vertice(nombre, vecinos, coordenadas_origen)
-        
+    
+    #eliminar_vertice("PLAZA DE ESPAÑA")
     print(buscar_camino("LAGO", "GRAN VIA"))
     # Buscar Vertice Basado en el atributo Nombre
     # print(buscar_vertice("COLONIA JARDIN", None, None))
