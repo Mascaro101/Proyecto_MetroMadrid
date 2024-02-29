@@ -1,6 +1,6 @@
 import pandas as pd
 # el directorio donde se guarda el archivo que contiene los datos
-data_address = "etiquetas_grafos_metro_PRO.csv"
+data_address = "C:/Users/Usuario/Desktop/Work/CODE/Code Proyects/IMMUNE/1 Curso/Data Structures/etiquetas_grafos_metro_PRO - etiquetas_grafos_metro_PRO.csv"
 data = pd.read_csv(data_address)
 
 # Diccionario de vertices y aristas
@@ -186,63 +186,100 @@ def construir_ruta(anterior_nodo, origen, destino):
     ruta.reverse()
     
     return ruta, ruta_distancia
-
-# Funcion que retrocede el camino y construye la ruta más corta NO RECURSIVA
-def construir_ruta(anterior_nodo, origen, destino):
-    ruta = [destino]
-    ruta_distancia = 0
-    
-    # Empezando desde el destino se retrocede añadiendo los nodos a la lista de ruta y luego se le da la vuelta
-    while destino != origen:
-        # estacion final es la ultima estacion en la pila, se iguala a la anterior
-        estacion_final = destino
-        destino = anterior_nodo[destino]
-        estacion_anterior = destino
-        
-        # estacion final y la anterior se usan para buscar la arista entre ellos y asi sumar su distancia a la distancia de la ruta
-        ruta_distancia += aristas[(estacion_final, estacion_anterior)]["distancia"]
-        
-        ruta.append(destino)
-    ruta.reverse()
-    
-    return ruta, ruta_distancia
     
 def main():
     # bucle que guarda la informacion del archivo de datos
     for estacion in data.id:
         # se guardan el nombre, linea y coordenadas de cada estacion
         nombre = data.nombre[estacion]
-        linea = data.linea[estacion]
         coordenadas_origen = (data.x[estacion], data.y[estacion])
         
         # si en el archivo, dos estaciones aparecen consecutivamente y pertenecen a la misma linea se guardan en el vertice como vecinos
         vecinos =  []
-        if data.id[estacion]+1 < len(data.id) and data.id[estacion]-1 > 0:
-            
-            # Se verifica si la estacion anterior en el csv pertenece a la misma linea y por lo tanto son vecinos
-            if data.linea[estacion] == data.linea[estacion-1]:
-                # Con las coordenadas del vecino anterior se crea una arista entre el vecino anterior y la estacion
-                coordenadas_vecino_anterior = (data.x[estacion-1], data.y[estacion-1])
-                crear_arista(nombre, data.nombre[estacion-1], coordenadas_origen, coordenadas_vecino_anterior)
-                vecinos.append(data.nombre[estacion-1])
-            # Se verifica si la estacion siguiente en el csv pertenece a la misma linea y por lo tanto son vecinos
-            if data.linea[estacion] == data.linea[estacion+1]:
-                # Con las coordenadas del vecino anterior se crea una arista entre el vecino siguiente y la estacion
-                coordenadas_vecino_siguiente = (data.x[estacion+1], data.y[estacion+1])
-                crear_arista(nombre, data.nombre[estacion+1], coordenadas_origen, coordenadas_vecino_anterior)
-                vecinos.append(data.nombre[estacion+1])
+        # Se verifica si la estacion siguiente en el csv pertenece a la misma linea y por lo tanto son vecinos
+        # Con las coordenadas del vecino anterior se crea una arista entre el vecino siguiente y la estacion
+        if data.id[estacion]+1 < len(data.id) and data.linea[estacion] == data.linea[estacion+1]:
+            coordenadas_vecino_siguiente = (data.x[estacion+1], data.y[estacion+1])
+            crear_arista(nombre, data.nombre[estacion+1], coordenadas_origen, coordenadas_vecino_siguiente)
+            vecinos.append(data.nombre[estacion+1])
+                
+        # Se verifica si la estacion anterior en el csv pertenece a la misma linea y por lo tanto son vecinos
+        # Con las coordenadas del vecino anterior se crea una arista entre el vecino anterior y la estacion
+        if data.id[estacion]-1 > 0 and data.linea[estacion] == data.linea[estacion-1]:
+            coordenadas_vecino_anterior = (data.x[estacion-1], data.y[estacion-1])
+            crear_arista(nombre, data.nombre[estacion-1], coordenadas_origen, coordenadas_vecino_anterior)
+            vecinos.append(data.nombre[estacion-1])
         
         # se crea el vertice en el nodo con el nombre, vecinos y coordenadas 
         crear_vertice(nombre, vecinos, coordenadas_origen)
     
-    #eliminar_vertice("PLAZA DE ESPAÑA")
-    print(buscar_camino("LAGO", "GRAN VIA"))
-    # Buscar Vertice Basado en el atributo Nombre
-    # print(buscar_vertice("COLONIA JARDIN", None, None))
-    # Buscar Vertice Basado en el atributo Vecinos
-    # print(buscar_vertice(None, ['CASA DE CAMPO', 'AVIACION ESPAÑOLA'], None))
-    # Buscar Vertice Basado en el atributo Coordenadas
-    # print(buscar_vertice(None, None, [434373, 4472315]))
+    menu_muestra = """
+    ###-------------------------------------------------------------###
+                    BIENVENIDO AL METRO DE MADRID
+    ###-------------------------------------------------------------###
+    1. Buscar Estación
+    2. Eliminar Estación
+    3. Ruta a un destino
+    4. Salir del metro
+    """
     
-if __name__ == "__main__":
+    menu_buscar_camino = """
+    BUSCAR ESTACION
+    
+    1. Buscar por Nombre
+    2. Buscar por Vecinos
+    3. Buscar por Coordenadas
+    """
+    
+    print(menu_muestra)
+    seleccion = int(input("Introduzca el número de la opción deseada: "))
+    
+    while seleccion < 4:
+        if seleccion == 1:
+            print(menu_buscar_camino)
+            seleccion_metodo_busqueda_estacion = int(input("Introduzca el número de la opción deseada: "))
+            
+            # Buscar Vertice Basado en el atributo Nombre
+            if seleccion_metodo_busqueda_estacion == 1:
+                estacion_buscar = input("Introduzca la estación que desea buscar: ").upper()
+                print(buscar_vertice(estacion_buscar, None, None))
+                
+            # Buscar Vertice Basado en el atributo Vecinos
+            elif seleccion_metodo_busqueda_estacion == 2:
+                vecinos_busqueda = []
+                while True:
+                    estacion_buscar = input("Introduzca los vecinos de la estacion (una vez terminado escribe exit): ").upper()
+                    if estacion_buscar != "EXIT":
+                        vecinos_busqueda.append(estacion_buscar)
+                    else:
+                        break
+                if buscar_vertice(None, vecinos_busqueda, None):
+                    print(buscar_vertice(None, vecinos_busqueda, None))
+                elif buscar_vertice(None, reversed(vecinos_busqueda), None):
+                    print(buscar_vertice(None, reversed(vecinos_busqueda), None))
+                else:
+                    print("No se ha podido encontrar")
+                    
+            # Buscar Vertice Basado en el atributo Coordenadas
+            elif seleccion_metodo_busqueda_estacion == 3:
+                x_busqueda = int(input("Introduzca es valor de X:"))
+                y_busqueda = int(input("Introduzca es valor de Y:"))
+                
+                coordenadas_busqueda = [x_busqueda, y_busqueda]
+                print(buscar_vertice(None, None, coordenadas_busqueda))
+            
+        elif seleccion == 2:
+            estacion_eliminar = input("Introduzca la estación que desea eliminar: ").upper()
+            eliminar_vertice(estacion_eliminar)
+        elif seleccion == 3:
+            estacion_origen = input("Introduzca la estación desde la que sale: ").upper()
+            estacion_destino = input("Introduzca la estación de destino: ").upper()
+            print(buscar_camino(estacion_origen, estacion_destino))
+        elif seleccion == 4: 
+            break
+        
+        print(menu_muestra)
+        seleccion = int(input("Introduzca el número de la opción deseada: "))
+    
+if _name_ == "_main_":
     main()
