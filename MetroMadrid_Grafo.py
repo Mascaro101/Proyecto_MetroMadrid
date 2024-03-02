@@ -36,47 +36,55 @@ def crear_arista(origen_nombre, destino_nombre, coordenadas_origen, coordenadas_
 
 # Funcion que elimina un vertice
 def eliminar_vertice(vertice):
-    for key, value in vertices[vertice].items():
-        if key == "vecinos":
-            estacion_anterior = value[0]
-            #print(estacion_anterior)
-            estacion_siguiente = value[1]
-            #print(estacion_siguiente)
-            estaciones_vecinos = value
-            #print(estaciones_vecinos)
-    
-    # Elimino las aristas que tienen el vértice como origen
-    for arista, info in aristas.copy().items():
-        if arista[0] == vertice or arista[1] == vertice:
-            del aristas[arista]
-    
-    # Elimino de los vecinos la estación eliminada
-    for estacion in estaciones_vecinos:
-        for x, y in vertices[estacion].items():
-            if x == "vecinos":
-                y.remove(vertice)
-    
-    # Añado los nuevos vecinos
-    for k, v in vertices[vertice].items():
-        if k == "vecinos":
-            for i in range(len(v)-1):
-                estacion_anterior = v[i]
-                estacion_siguiente = v[i+1]
-                vertices[estacion_anterior]["vecinos"].append(estacion_siguiente)
-                vertices[estacion_siguiente]["vecinos"].append(estacion_anterior)
-                
-    #Elimino la estación deseada
-    if vertice in vertices: 
-        del vertices[vertice]
+    try:
+        for key, value in vertices[vertice].items():
+            if key == "vecinos":
+                estacion_anterior = value[0]
+                #print(estacion_anterior)
+                estacion_siguiente = value[1]
+                #print(estacion_siguiente)
+                estaciones_vecinos = value
+                #print(estaciones_vecinos)
+        
+        # Elimino las aristas que tienen el vértice como origen
+        for arista, info in aristas.copy().items():
+            if arista[0] == vertice or arista[1] == vertice:
+                del aristas[arista]
+        
+        # Elimino de los vecinos la estación eliminada
+        for estacion in estaciones_vecinos:
+            for x, y in vertices[estacion].items():
+                if x == "vecinos":
+                    y.remove(vertice)
+        
+        # Añado los nuevos vecinos
+        for k, v in vertices[vertice].items():
+            if k == "vecinos":
+                for i in range(len(v)-1):
+                    estacion_anterior = v[i]
+                    estacion_siguiente = v[i+1]
+                    vertices[estacion_anterior]["vecinos"].append(estacion_siguiente)
+                    vertices[estacion_siguiente]["vecinos"].append(estacion_anterior)
+                    
+        #Elimino la estación deseada
+        if vertice in vertices: 
+            del vertices[vertice]
+        
+        print(f"La estación {vertice} ha sido eliminada con éxito")
+    except:
+        print("La estación introducida no existe!!")
 
 # Funcion que busca un vertice basandose en uno de sus atributos 
 def buscar_vertice(nombre, vecinos, coordenadas):
+    #Buscar estación por su nombre
     if nombre:
         return nombre, vertices.get(nombre, None)
+    #Buscar estación por sus vecinos
     if vecinos:
         for vertice in vertices:
             if vertices[vertice]["vecinos"] == vecinos:
                 return vertice, vertices[vertice]
+    #Buscar estación por sus coordenadas
     if coordenadas:
         for vertice in vertices:
             if vertices[vertice]["x"] == coordenadas[0] and vertices[vertice]["y"] == coordenadas[1]:
@@ -235,7 +243,7 @@ def main():
     seleccion = int(input("Introduzca el número de la opción deseada: "))
     
     while seleccion < 4:
-        if seleccion == 1:
+        if seleccion == 1: #Buscar Información Estación
             print(menu_buscar_camino)
             seleccion_metodo_busqueda_estacion = int(input("Introduzca el número de la opción deseada: "))
             
@@ -267,15 +275,14 @@ def main():
                 
                 coordenadas_busqueda = [x_busqueda, y_busqueda]
                 print(buscar_vertice(None, None, coordenadas_busqueda))
-            
-        elif seleccion == 2:
+        elif seleccion == 2: #Opcion 2: Eliminar Vértice / Estación
             estacion_eliminar = input("Introduzca la estación que desea eliminar: ").upper()
             eliminar_vertice(estacion_eliminar)
-        elif seleccion == 3:
+        elif seleccion == 3: #Opción 3: Buscar Camino
             estacion_origen = input("Introduzca la estación desde la que sale: ").upper()
             estacion_destino = input("Introduzca la estación de destino: ").upper()
             print(buscar_camino(estacion_origen, estacion_destino))
-        elif seleccion == 4: 
+        elif seleccion == 4: #Salir del programa
             break
         
         print(menu_muestra)
